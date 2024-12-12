@@ -1,4 +1,14 @@
 en:
-  circular_reference: Circular reference detected
-  validate_uniqueness: Must be unique in same category
-
+  errors:
+    messages:
+      circular_reference: introduces a circular reference in the tag hierarchy
+      duplicate_in_scope: Must be unique in same category
+  activerecord:
+    errors:
+      models:
+        needle_in_a_haystack/haystack_tag:
+          attributes:
+            name:
+              duplicate_in_scope: Must be unique in same category
+            parent_tag:
+              circular_reference: introduces a circular reference in the tag hierarchy

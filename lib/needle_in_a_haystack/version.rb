@@ -1,1 +1,3 @@
-VERSION = "1.1.0".freeze
+module NeedleInAHaystack
+  VERSION = "2.0.0".freeze
+end

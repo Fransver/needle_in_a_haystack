@@ -1,13 +1,17 @@
-class BaseFactory
-  def create_tag(name, description)
-    raise NotImplementedError, "Subclasses must implement a create_tag-method"
-  end
+module NeedleInAHaystack
+  # Interface for tag/tagging factories. Concrete factories combine a creation
+  # strategy with persistence behaviour.
+  class BaseFactory
+    def create_tag(_name, _description)
+      raise NotImplementedError, "#{self.class} must implement #create_tag"
+    end
 
-  def create_tagging(tag, taggable)
-    raise NotImplementedError, "Subclasses must implement a create_tagging-method"
-  end
+    def create_tagging(_tag, _taggable)
+      raise NotImplementedError, "#{self.class} must implement #create_tagging"
+    end
 
-  def find_or_create_tag(name, attributes = {})
-    raise NotImplementedError, "Subclasses must implement a find_or_create_tag-method"
+    def find_or_create_tag(_name, _attributes = {})
+      raise NotImplementedError, "#{self.class} must implement #find_or_create_tag"
+    end
   end
 end

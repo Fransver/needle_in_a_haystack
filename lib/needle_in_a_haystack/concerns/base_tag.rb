@@ -1,31 +1,38 @@
-class BaseTag < ApplicationRecord
-  self.abstract_class = true
+module NeedleInAHaystack
+  # Abstract base class that documents the interface every concrete tag model
+  # must provide. It exists so alternative tag implementations can share a
+  # common, enforced contract.
+  class BaseTag < ApplicationRecord
+    self.abstract_class = true
 
-  def full_path
-    raise NotImplementedError, "Subclasses must implement a full_path-method"
-  end
+    def full_path
+      raise NotImplementedError, "#{self.class} must implement #full_path"
+    end
 
-  def prevent_circular_reference
-    raise NotImplementedError, "Subclasses must implement a prevent_circular_reference-method"
-  end
+    def ancestors
+      raise NotImplementedError, "#{self.class} must implement #ancestors"
+    end
 
-  def ancestors
-    raise NotImplementedError, "Subclasses must implement an ancestors-method"
-  end
+    def descendants
+      raise NotImplementedError, "#{self.class} must implement #descendants"
+    end
 
-  def descendants
-    raise NotImplementedError, "Subclasses must implement a descendants-method"
-  end
+    def siblings
+      raise NotImplementedError, "#{self.class} must implement #siblings"
+    end
 
-  def siblings
-    raise NotImplementedError, "Subclasses must implement a siblings-method"
-  end
+    def root?
+      raise NotImplementedError, "#{self.class} must implement #root?"
+    end
 
-  def root?
-    raise NotImplementedError, "Subclasses must implement a root?-method"
-  end
+    def leaf?
+      raise NotImplementedError, "#{self.class} must implement #leaf?"
+    end
 
-  def leaf?
-    raise NotImplementedError, "Subclasses must implement a leaf?-method"
+    private
+
+    def prevent_circular_reference
+      raise NotImplementedError, "#{self.class} must implement #prevent_circular_reference"
+    end
   end
 end
