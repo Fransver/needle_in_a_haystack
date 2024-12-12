@@ -1,30 +1,21 @@
-<%
-   database = ENV["FOURIQ_SQL_DB"]
-   user = ENV["DB_USER"]
-   password = ENV["DB_PASSWORD"]
-   socket = ENV["DB_SOCKET"]
- %>
-
+# Connection settings for the engine's test/dummy application.
+#
+# Defaults to a self-contained MySQL database named needle_in_a_haystack_*.
+# Every value can be overridden through environment variables, so CI and local
+# setups can point elsewhere without editing this file.
 default: &default
   adapter: mysql2
-  encoding: utf8
-  pool: 32
-  username: <%= user %>
-  password: <%= password %>
-  socket: <%= socket %>
+  encoding: utf8mb4
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+  username: <%= ENV.fetch("DB_USER", "root") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "") %>
+  host: <%= ENV.fetch("DB_HOST", "127.0.0.1") %>
+  <% if ENV["DB_SOCKET"] %>socket: <%= ENV["DB_SOCKET"] %><% end %>
 
 development:
   <<: *default
-  database: <%= database %>_development
+  database: <%= ENV.fetch("NIAH_DATABASE", "needle_in_a_haystack") %>_development
 
 test:
   <<: *default
-  database: <%= database %>_test
-
-#
-production:
-  <<: *default
-  database: <%= database %>_production
-  username: <%= user %>
-  password: <%= password %>
-
+  database: <%= ENV.fetch("NIAH_DATABASE", "needle_in_a_haystack") %>_test
