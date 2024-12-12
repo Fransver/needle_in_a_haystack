@@ -8,6 +8,7 @@ gem "rails", "~> 7.1"
 gem "bootsnap", require: false
 
 group :development, :test do
+  gem "dotenv-rails"
   gem "factory_bot_rails", require: false
   gem "mysql2"
   gem "rspec-rails"
