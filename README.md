@@ -1,315 +1,243 @@
 # Needle in a Haystack
 
-<img src="storage/logo.jpg" alt="Logo" width="40%">
+<img src="storage/logo.jpg" alt="Needle in a Haystack logo" width="40%">
 
-# Table of Contents
+A Rails engine that implements the [Project Haystack](https://project-haystack.org)
+tagging ontology. It gives you:
 
-- [Needle in a Haystack](#needle-in-a-haystack)
-  - [Models](#models)
-    - [HaystackTag](#haystacktag)
-      - [Attributes](#attributes)
-      - [Validations](#validations)
-      - [Associations](#associations)
-      - [Methods](#methods)
-      - [Example Usage](#example-usage)
-    - [HaystackTagging](#haystacktagging)
-      - [Associations](#associations-1)
-      - [Example Usage](#example-usage-1)
-  - [Ontology and Factory](#ontology-and-factory)
-    - [HaystackOntology](#haystackontology)
-      - [Key Methods](#key-methods)
-      - [Example Usage](#example-usage-2)
-    - [HaystackFactory](#haystackfactory)
-      - [Key Methods](#key-methods-1)
-      - [How They Work Together](#how-they-work-together)
-      - [Example Usage](#example-usage-3)
-  - [Query Strategies](#query-strategies)
-    - [QueryContext](#querycontext)
-      - [Example Usage](#example-usage-4)
-    - [QueryStrategy](#querystrategy)
-    - [FindByTagsStrategy](#findbytagsstrategy)
-    - [FindPointsWithTagStrategy](#findpointswithtagstrategy)
-  - [HaystackTag Validations and Associations](#haystacktag-validations-and-associations)
-  - [Duplicate Name Validation](#duplicate-name-validation)
-  - [Hierarchy Functionality](#hierarchy-functionality)
-  - [Path Operations](#path-operations)
-  - [Descendant and Sibling Operations](#descendant-and-sibling-operations)
+- a **hierarchical tag tree** (`HaystackTag`) — every tag has at most one parent
+  and any number of children;
+- a **polymorphic tagging layer** (`HaystackTagging` + the `Taggable` concern)
+  so you can attach those tags to *any* of your models;
+- an **ontology importer** that builds the tag tree from a YAML definition;
+- composable **query strategies** for finding records by their tags.
 
-## Models
+It was built for managing building and equipment data, but it works for any
+problem that needs a shared, hierarchical tag vocabulary.
 
-### HaystackTag
+## Table of contents
 
-The `HaystackTag` class represents tags in a hierarchical structure. Each tag can have a parent tag and multiple child tags. This model is used to create and manage a tree structure of tags.
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Concepts](#concepts)
+- [Tagging your models](#tagging-your-models)
+- [The tag hierarchy](#the-tag-hierarchy)
+- [The ontology](#the-ontology)
+- [Query strategies](#query-strategies)
+- [Extending: factories and strategies](#extending-factories-and-strategies)
+- [Development](#development)
 
-#### Attributes
+## Installation
 
-- `name`: The name of the tag (required and unique).
-- `description`: A description of the tag (required).
-- `parent_tag`: An optional reference to the parent tag.
-
-#### Validations
-
-- `name`: Must be present and unique.
-- `description`: Must be present.
-- `prevent_circular_reference`: Prevents circular references in the tag hierarchy.
-
-#### Associations
-
-- `belongs_to :parent_tag`: Refers to the parent tag.
-- `has_many :children`: Refers to the child tags.
-- `has_many :haystack_taggings`: Refers to the taggings that use this tag.
-- `has_many :taggables`: Refers to the objects tagged with this tag.
-
-#### Methods
-
-- `ancestors`: Returns an array of all ancestor tags.
-- `full_path`: Returns the full path of the tag in the tree structure.
-- `self.find_by_path(path)`: Finds a tag based on a path.
-- `descendants`: Returns an array of all descendant tags.
-- `siblings`: Returns an array of all sibling tags.
-- `root?`: Checks if the tag is a root tag.
-- `leaf?`: Checks if the tag is a leaf tag.
-- `depth`: Returns the depth of the tag in the tree structure.
-
-#### Example Usage
+Add the gem to your application's `Gemfile`:
 
 ```ruby
-# Creating a new tag
-root_tag = HaystackTag.create(name: "root", description: "Root tag")
-
-# Creating a child tag
-child_tag = HaystackTag.create(name: "child", description: "Child tag", parent_tag: root_tag)
-
-# Getting the full path of a tag
-puts child_tag.full_path # Output: "root > child"
-
-# Getting all ancestor tags
-ancestors = child_tag.ancestors
+gem "needle_in_a_haystack"
 ```
 
-### HaystackTagging
+Then install the gem and copy its migration into your app:
 
-The `HaystackTagging` class represents the relationship between tags and taggable objects (polymorphic). This model is used to tag objects with `HaystackTag` tags.
+```bash
+bundle install
+bin/rails needle_in_a_haystack:install:migrations
+bin/rails db:migrate
+```
 
-#### Associations
+This creates two tables: `haystack_tags` (the hierarchy) and `haystack_taggings`
+(the polymorphic join). The gem does not lock you to a database driver — add
+whichever adapter your app uses (`mysql2`, `pg`, `sqlite3`, …) yourself.
 
-- `belongs_to :haystack_tag`: Refers to the `HaystackTag`.
-- `belongs_to :taggable`: Refers to the taggable object (polymorphic).
+## Configuration
 
-#### Example Usage
+All configuration is optional. To point the ontology importer at your own YAML
+file, add an initializer:
 
 ```ruby
-# Creating a new tagging
-tag = HaystackTag.find_by(name: "child")
-device = Device.find(1) # Example of a taggable object
-tagging = HaystackTagging.create(haystack_tag: tag, taggable: device)
-
+# config/initializers/needle_in_a_haystack.rb
+NeedleInAHaystack.configure do |config|
+  config.ontology_path = Rails.root.join("config/haystack_ontology.yml")
+end
 ```
 
-## Ontology and Factory
+When unset, the ontology shipped with the gem is used.
 
-### HaystackOntology
+## Concepts
 
-The `HaystackOntology` class is responsible for managing the ontology of tags. It provides methods to load, find, and create tags based on a YAML configuration file.
+| Class | Responsibility |
+| --- | --- |
+| `NeedleInAHaystack::HaystackTag` | A node in the tag hierarchy. |
+| `NeedleInAHaystack::HaystackTagging` | Polymorphic join between a tag and a tagged record. |
+| `NeedleInAHaystack::Taggable` | Concern you include in your own models. |
+| `NeedleInAHaystack::HaystackOntology` | Loads YAML and materialises the tag tree. |
+| `NeedleInAHaystack::HaystackFactory` | Creates tags/taggings via a pluggable strategy. |
+| `NeedleInAHaystack::QueryContext` + `*Strategy` | Find records by their tags. |
 
-#### Key Methods
+All classes live under the `NeedleInAHaystack` namespace.
 
-- `self.tags`: Loads the tags from the `config/haystack_ontology.yml` file and caches them.
-- `self.find_tag(path)`: Finds a tag based on a given path. It supports both flat and hierarchical paths.
-- `self.find_tag_in_hierarchy(current_hash, target_key, path = [])`: Recursively searches for a tag in a nested hash structure.
-- `self.create_tags`: Uses the `HaystackFactory` to create tags from the loaded ontology.
-- `self.find_or_create_tag(name)`: Finds or creates a tag based on the name using the `HaystackFactory`.
-- `self.import_full_ontology`: Imports the full ontology by creating all tags.
+## Tagging your models
 
-### HaystackFactory
-
-The `HaystackFactory` class is responsible for creating and managing tags and taggings. It uses a strategy pattern to allow different tag creation strategies.
-
-#### Key Methods
-
-- `initialize(tag_strategy = DefaultTagStrategy.new)`: Initializes the factory with a given tag strategy.
-- `create_tag(name, description)`: Creates a tag using the current strategy.
-- `create_tagging(tag, taggable)`: Creates a tagging for a taggable object.
-- `find_or_create_tag(name, attributes = {})`: Finds or creates a tag with the given attributes.
-- `create_tags(tag_hash, parent_tag = nil)`: Recursively creates tags from a nested hash structure.
-
-### How They Work Together
-
-1. **Loading Tags**: `HaystackOntology` loads the tags from the YAML file using the `self.tags` method.
-2. **Finding Tags**: `HaystackOntology` can find tags based on a path using the `self.find_tag` and `self.find_tag_in_hierarchy` methods.
-3. **Creating Tags**: `HaystackOntology` uses the `self.create_tags` method to create tags. This method initializes a `HaystackFactory` with an `OntologyTagStrategy` and calls the factory's `create_tags` method.
-4. **Finding or Creating Tags**: `HaystackOntology` uses the `self.find_or_create_tag` method to find or create a tag. This method initializes a `HaystackFactory` with an `OntologyTagStrategy` and calls the factory's `find_or_create_tag` method.
-5. **Importing Full Ontology**: `HaystackOntology` uses the `self.import_full_ontology` method to import the full ontology by calling the `self.create_tags` method.
-
-### Example Usage
+Include the `Taggable` concern in any model you want to tag:
 
 ```ruby
-# Load and create all tags from the ontology
-HaystackOntology.import_full_ontology
-
-# Find a specific tag by path
-tag = HaystackOntology.find_tag("root.child")
-
-# Find or create a tag by name
-tag = HaystackOntology.find_or_create_tag("child")
+class Point < ApplicationRecord
+  include NeedleInAHaystack::Taggable
+end
 ```
 
-## Query Strategies
-
-The query strategies are used to bind several data objects together based on their tags. This is achieved using the Strategy design pattern, which allows different query strategies to be implemented and executed dynamically.
-
-### QueryContext
-
-The `QueryContext` class is responsible for executing a given strategy. It takes a strategy as an argument and calls the `execute` method on that strategy.
-
-#### Example Usage
+That gives every instance a tagging API:
 
 ```ruby
-# Define a strategy
-strategy = FindByTagsStrategy.new(Model, tags)
+temp = NeedleInAHaystack::HaystackTag.find_by(name: "temp")
+sensor = NeedleInAHaystack::HaystackTag.find_by(name: "sensor")
 
-# Create a context with the strategy
-context = QueryContext.new(strategy)
-
-# Execute the strategy
-result = context.execute
+point.add_haystack_tag(temp)            # attach one tag
+point.add_haystack_tags(temp, sensor)   # attach several
+point.haystack_tagged_with?("temp")     # => true
+point.haystack_tags                      # => [#<HaystackTag temp>, ...]
+point.remove_haystack_tag(temp)         # => true
 ```
 
-### QueryStrategy
-The QueryStrategy class is an abstract base class for all query strategies. It defines an execute method that must be implemented by subclasses.
+…and class-level lookups:
 
-class CustomStrategy < QueryStrategy
-  def execute
-    # Custom query logic
+```ruby
+Point.tagged_with(temp, sensor)   # records carrying ALL of these tags
+Point.tagged_with_any(temp, sensor) # records carrying ANY of these tags
+```
+
+## The tag hierarchy
+
+`HaystackTag` models a tree. A tag is unique by name *within its parent*, so the
+same name may appear under different parents.
+
+```ruby
+HaystackTag = NeedleInAHaystack::HaystackTag
+
+site     = HaystackTag.create!(name: "site",     description: "A location")
+building = HaystackTag.create!(name: "building", description: "A structure", parent_tag: site)
+floor    = HaystackTag.create!(name: "floor",    description: "A floor", parent_tag: building)
+
+floor.full_path     # => "site > building > floor"
+floor.ancestors     # => [building, site]   (nearest first)
+floor.depth         # => 2
+floor.root?         # => false
+floor.leaf?         # => true
+floor.category      # => "site"             (the root it descends from)
+site.descendants    # => [building, floor]  (breadth-first)
+building.siblings   # => []
+
+HaystackTag.find_by_path("site.building.floor") # => floor
+HaystackTag.find_by_path("site.missing")        # => nil
+```
+
+Circular references are rejected by validation, and a tag's name must be unique
+within its parent.
+
+## The ontology
+
+The ontology is a nested YAML file. Each node has a `description`, an optional
+`marker`, and an optional `children` map:
+
+```yaml
+site:
+  description: A geographical location in the built environment
+  children:
+    building:
+      description: A structure on a site
+      children:
+        floor:
+          description: A floor in a building
+```
+
+Import it into the database:
+
+```ruby
+# Build the entire tree
+NeedleInAHaystack::HaystackOntology.import_full_ontology
+
+# …or via the rake task
+# bin/rails needle_in_a_haystack:import_ontology
+
+# Look up a node definition by dotted path
+NeedleInAHaystack::HaystackOntology.find_tag("site.building")
+# => { "description" => "A structure on a site", "name" => "building", "path" => "site.building", ... }
+
+# Find or create a single tag from the ontology
+NeedleInAHaystack::HaystackOntology.find_or_create_tag("site.building.floor")
+```
+
+Imports are idempotent: running them again updates existing tags instead of
+duplicating them.
+
+## Query strategies
+
+Finding records by tag uses the Strategy pattern, so you can swap query
+behaviour without changing call sites. Each strategy returns an
+`ActiveRecord::Relation`, so results stay composable.
+
+```ruby
+include NeedleInAHaystack
+
+# Records with a single tag
+QueryContext.new(FindPointsWithTagStrategy.new(Point, temp)).execute
+
+# Records with ANY of the given tags
+QueryContext.new(FindByTagsStrategy.new(Point, [temp, sensor])).execute
+
+# Records with ALL of the given tags
+QueryContext.new(FindPointsWithMultipleTagsStrategy.new(Point, [temp, sensor])).execute
+```
+
+For everyday use the `Taggable.tagged_with` / `tagged_with_any` helpers cover the
+same ground; the strategies are there when you need to compose or extend query
+behaviour.
+
+## Extending: factories and strategies
+
+Tag creation goes through `HaystackFactory`, which delegates to a `TagStrategy`.
+Two are provided — `DefaultTagStrategy` (ad-hoc) and `OntologyTagStrategy`
+(idempotent import). Provide your own to customise creation:
+
+```ruby
+class MyTagStrategy < NeedleInAHaystack::TagStrategy
+  def create_tag(name, description)
+    NeedleInAHaystack::HaystackTag.create(name: name, description: description)
+  end
+
+  def update_tag(tag, attributes)
+    tag.update(attributes)
+    tag
   end
 end
+
+factory = NeedleInAHaystack::HaystackFactory.new(MyTagStrategy.new)
+```
+
+Likewise, add a new query strategy by subclassing `QueryStrategy` and
+implementing `#execute`:
+
 ```ruby
-  strategy = CustomStrategy.new
-  context = QueryContext.new(strategy)
-  result = context.execute
-```
-
-### FindByTagsStrategy
-The FindByTagsStrategy class is a concrete implementation of QueryStrategy. It finds records that are associated with any of the given tags.
-
-``` ruby
-  tags = [tag1, tag2]
-  strategy = FindByTagsStrategy.new(Model, tags)
-  context = QueryContext.new(strategy)
-  result = context.execute
-```
-
-### FindPointsWithTagStrategy
-The FindPointsWithTagStrategy class is a concrete implementation of QueryStrategy. It finds records that are associated with a specific tag.
-
-
-
-## HaystackTag Validations and Associations
-The HaystackTag model includes comprehensive validations and associations to ensure data integrity and support hierarchical relationships.
-
-``` ruby
-RSpec.describe HaystackTag, type: :model do
-  describe "validations and associations" do
-    subject { build(:haystack_tag) }
-
-    # Validations
-    it { is_expected.to validate_presence_of(:name) }
-    it { is_expected.to validate_presence_of(:description) }
-
-    # Associations
-    it { is_expected.to belong_to(:parent_tag).class_name("HaystackTag").optional }
-    it { is_expected.to have_many(:children).class_name("HaystackTag").with_foreign_key("parent_tag_id").dependent(:destroy).inverse_of(:parent_tag) }
-    it { is_expected.to have_many(:haystack_taggings).dependent(:destroy) }
-    it { is_expected.to have_many(:taggables).through(:haystack_taggings).source(:taggable) }
+class RecentlyTaggedStrategy < NeedleInAHaystack::QueryStrategy
+  def initialize(model)
+    super()
+    @model = model
   end
-```
 
-# Duplicate Name Validation
-HaystackTag ensures unique tag names within the same parent but allows identical names across different parents.
-
-``` ruby
-  context "when creating duplicate names" do
-    it "validates uniqueness within the same parent" do
-      parent = create(:haystack_tag)
-      create(:haystack_tag, name: "test", parent_tag: parent)
-      duplicate = build(:haystack_tag, name: "test", parent_tag: parent)
-
-      expect(duplicate).not_to be_valid
-      expect(duplicate.errors[:name]).to include("Must be unique in same category")
-    end
-
-    it "allows the same name under different parents" do
-      parent1 = create(:haystack_tag)
-      parent2 = create(:haystack_tag)
-      create(:haystack_tag, name: "test", parent_tag: parent1)
-      tag2 = build(:haystack_tag, name: "test", parent_tag: parent2)
-
-      expect(tag2).to be_valid
-    end
+  def execute
+    @model.joins(:haystack_taggings).where(haystack_taggings: { created_at: 1.week.ago.. })
   end
+end
 ```
 
-# Hierarchy Functionality
-The HaystackTag model supports hierarchical operations such as identifying roots, leaves, depth, and ancestor relationships.
+## Development
 
-``` ruby
-  describe "hierarchy functionality" do
-    let(:root) { create(:haystack_tag, name: "root") }
-    let(:child) { create(:haystack_tag, name: "child", parent_tag: root) }
-    let(:grandchild) { create(:haystack_tag, name: "grandchild", parent_tag: child) }
-
-    context "basic hierarchy methods" do
-      it "identifies root and leaf nodes correctly" do
-        expect(root.root?).to be true
-        expect(child.root?).to be false
-        expect(grandchild.leaf?).to be true
-        expect(child.leaf?).to be false
-      end
-
-      it "calculates depth accurately" do
-        expect(root.depth).to eq(0)
-        expect(child.depth).to eq(1)
-        expect(grandchild.depth).to eq(2)
-      end
-
-      it "returns correct ancestors" do
-        expect(grandchild.ancestors).to eq([child, root])
-        expect(child.ancestors).to eq([root])
-        expect(root.ancestors).to be_empty
-      end
-    end
-  end
+```bash
+git clone https://github.com/Fransver/needle_in_a_haystack.git
+cd needle_in_a_haystack
+bundle install
+bundle exec rspec
+bundle exec rubocop
 ```
 
-# Path Operations
-HaystackTag provides methods for finding tags based on hierarchical paths.
-
-``` ruby
-  context "path operations" do
-    it "retrieves tags by valid paths" do
-      expect(HaystackTag.find_by_path("root")).to eq(root)
-      expect(HaystackTag.find_by_path("root.child")).to eq(child)
-      expect(HaystackTag.find_by_path("root.child.grandchild")).to eq(grandchild)
-    end
-
-    it "handles invalid paths gracefully" do
-      expect(HaystackTag.find_by_path("invalid")).to be_nil
-      expect(HaystackTag.find_by_path("root.invalid")).to be_nil
-    end
-  end
-```
-
-# Descendant and Sibling Operations
-The HaystackTag model supports efficient retrieval of descendants and siblings.
-
-``` ruby
-  context "sibling and descendant operations" do
-    let(:sibling) { create(:haystack_tag, name: "sibling", parent_tag: root) }
-
-    it "returns all descendants correctly" do
-      expect(root.descendants).to contain_exactly(child, grandchild, sibling)
-      expect(child.descendants).to contain_exactly(grandchild)
-      expect(grandchild.descendants).to be_empty
-    end
-  end
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and
+[CHANGELOG.md](CHANGELOG.md) for the release history. Released under the
+[MIT License](LICENSE).
