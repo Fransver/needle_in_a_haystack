@@ -1,0 +1,30 @@
+<%
+   database = ENV["FOURIQ_SQL_DB"]
+   user = ENV["DB_USER"]
+   password = ENV["DB_PASSWORD"]
+   socket = ENV["DB_SOCKET"]
+ %>
+
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  pool: 32
+  username: <%= user %>
+  password: <%= password %>
+  socket: <%= socket %>
+
+development:
+  <<: *default
+  database: <%= database %>_development
+
+test:
+  <<: *default
+  database: <%= database %>_test
+
+#
+production:
+  <<: *default
+  database: <%= database %>_production
+  username: <%= user %>
+  password: <%= password %>
+

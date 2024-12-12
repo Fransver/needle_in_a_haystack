@@ -1,0 +1,249 @@
+site:
+  description: A geographical location in the built environment
+  children:
+    building:
+      description: A structure on a site
+      children:
+        floor:
+          description: A floor in a building
+          children:
+            area:
+              description: A three-dimensional space in the built environment
+              children:
+                room:
+                  description: An enclosed space within a building
+                bathRoom:
+                  description: A space with sanitary facilities
+                kitchen:
+                  description: A space for food preparation
+                bedRoom:
+                  description: A bedroom
+                openSpace:
+                  description: An open area within a building
+                corridor:
+                  description: A hallway connecting different spaces
+                lobby:
+                  description: A reception area or hall in a building
+                office:
+                  description: A workspace within a building
+                conferenceRoom:
+                  description: A meeting room within a building
+                storage:
+                  description: A storage space within a building
+                mechanicalRoom:
+                  description: A room for mechanical equipment and installations
+                electricalRoom:
+                  description: A room for electrical equipment and installations
+
+equip:
+  description: Equipment asset
+  children:
+    meter:
+      description: Consumption measuring device
+      children:
+        elecMeter:
+          description: Electricity meter
+          children:
+            smartMeter:
+              description: Smart electricity meter
+            intervalMeter:
+              description: Interval electricity meter
+            meterbeheer:
+              description: Electricity meter management
+            fudura:
+              description: Fudura electricity meter
+        gasMeter:
+          description: Gas meter
+          children:
+            smartMeter:
+              description: Smart gas meter
+            intervalMeter:
+              description: Interval gas meter
+            meterbeheer:
+              description: Gas meter management
+            fudura:
+              description: Fudura gas meter
+        waterMeter:
+          description: Water meter
+        climateMeter:
+          description: Climate meter
+          children:
+            tempMeter:
+              description: Temperature meter
+            co2Meter:
+              description: CO2 meter
+            humidityMeter:
+              description: Humidity meter
+            loraMeter:
+              description: LoRa climate meter for temperature, humidity, and CO2
+
+    weatherStation:
+      description: Weather station for meteorological data
+      children:
+        onlineWeather:
+          description: Online weather station via API or website
+    hvac:
+      description: Heating, ventilation, and air conditioning
+      children:
+        ahu:
+          description: Air Handling Unit
+        vav:
+          description: Variable Air Volume box
+        fcu:
+          description: Fan Coil Unit
+        chiller:
+          description: Chiller
+        boiler:
+          description: Boiler
+        heatPump:
+          description: Heat pump
+    lighting:
+      description: Lighting systems
+      children:
+        luminaire:
+          description: Luminaire
+        lightSensor:
+          description: Light sensor
+        occupancySensor:
+          description: Occupancy sensor
+    security:
+      description: Security systems
+      children:
+        accessControl:
+          description: Access control system
+        cctv:
+          description: CCTV system
+
+point:
+  description: Data point such as a sensor or actuator
+  children:
+    sensor:
+      description: Measurement point
+      children:
+        temp:
+          description: Temperature sensor
+          children:
+            tempIndoor:
+              description: Indoor temperature sensor
+            tempOutdoor:
+              description: Outdoor temperature sensor
+        co2:
+          description: CO2 sensor
+        humidity:
+          description: Humidity sensor
+        pressure:
+          description: Pressure sensor
+        flow:
+          description: Flow sensor
+        power:
+          description: Power sensor
+        energy:
+          description: Energy sensor
+        occupancy:
+          description: Occupancy sensor
+    cmd:
+      description: Command point
+      children:
+        onOff:
+          description: On/off command
+        setpoint:
+          description: Setpoint
+    sp:
+      description: Setpoint
+      children:
+        tempSp:
+          description: Temperature setpoint
+        humiditySp:
+          description: Humidity setpoint
+        pressureSp:
+          description: Pressure setpoint
+    status:
+      description: Status point
+      children:
+        alarm:
+          description: Alarm point
+        fault:
+          description: Fault point
+
+substance:
+  description: Energy source or medium
+  children:
+    elec:
+      description: Electricity
+    gas:
+      description: Gas
+    water:
+      description: Water
+    steam:
+      description: Steam
+    oil:
+      description: Oil
+
+measurement:
+  description: Measurable properties
+  children:
+    temp:
+      description: Temperature
+    humidity:
+      description: Humidity
+    co2:
+      description: Carbon dioxide concentration
+    pressure:
+      description: Pressure
+    flow:
+      description: Flow
+    power:
+      description: Power
+    energy:
+      description: Energy
+    voltage:
+      description: Voltage
+    current:
+      description: Current
+    frequency:
+      description: Frequency
+    luminosity:
+      description: Luminosity
+
+occupied:
+  description: Occupancy status
+schedule:
+  description: Schedule
+timezone:
+  description: Time zone
+
+network:
+  description: Network-related information
+  children:
+    protocol:
+      description: Communication protocol
+      children:
+        bacnet:
+          description: BACnet protocol
+        modbus:
+          description: Modbus protocol
+        knx:
+          description: KNX protocol
+        lonworks:
+          description: LonWorks protocol
+    ipAddr:
+      description: IP address
+    mac:
+      description: MAC address
+
+id:
+  description: Unique identifier
+dis:
+  description: Display name
+area:
+  description: Area
+vol:
+  description: Volume
+manufacturer:
+  description: Manufacturer
+model:
+  description: Model
+serialNum:
+  description: Serial number
+installationDate:
+  description: Installation date

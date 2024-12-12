@@ -1,0 +1,4 @@
+en:
+  circular_reference: Circular reference detected
+  validate_uniqueness: Must be unique in same category
+

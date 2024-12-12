@@ -1,0 +1,165 @@
+---
+require:
+  - rubocop-rails
+  - rubocop-performance
+  - rubocop-rspec
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+  SupportedStyles:
+    - single_quotes
+    - double_quotes
+Convention:Layout/LineLength:
+  Enabled: false
+Metrics/AbcSize:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+Metrics/BlockLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Rails/IndexBy:
+  Enabled: true
+Rails/IndexWith:
+  Enabled: true
+Style/AndOr:
+  Enabled: true
+Layout/CaseIndentation:
+  Enabled: true
+Layout/ClosingHeredocIndentation:
+  Enabled: true
+Layout/ClosingParenthesisIndentation:
+  Enabled: true
+Layout/CommentIndentation:
+  Enabled: true
+Layout/ElseAlignment:
+  Enabled: true
+Layout/EndOfLine:
+  Enabled: true
+Layout/EmptyLineAfterMagicComment:
+  Enabled: true
+Layout/EmptyLinesAroundAccessModifier:
+  Enabled: true
+  EnforcedStyle: only_before
+Layout/EmptyLinesAroundBlockBody:
+  Enabled: true
+# In a regular class definition, no empty lines around the body.
+Layout/EmptyLinesAroundClassBody:
+  Enabled: true
+# In a regular method definition, no empty lines around the body.
+Layout/EmptyLinesAroundMethodBody:
+  Enabled: true
+# In a regular module definition, no empty lines around the body.
+Layout/EmptyLinesAroundModuleBody:
+  Enabled: true
+# Method definitions after `private` or `protected` isolated calls need one
+# extra level of indentation.
+Layout/IndentationConsistency:
+  Enabled: true
+  EnforcedStyle: indented_internal_methods
+# Two spaces, no tabs (for indentation).
+Layout/IndentationWidth:
+  Enabled: true
+Layout/LeadingCommentSpace:
+  Enabled: true
+Layout/SpaceAfterColon:
+  Enabled: true
+Layout/SpaceAfterComma:
+  Enabled: true
+Layout/SpaceAfterSemicolon:
+  Enabled: true
+Layout/SpaceAroundEqualsInParameterDefault:
+  Enabled: true
+Layout/SpaceAroundKeyword:
+  Enabled: true
+Layout/SpaceAroundOperators:
+  Enabled: true
+Layout/SpaceBeforeComma:
+  Enabled: true
+Layout/SpaceBeforeComment:
+  Enabled: true
+Layout/SpaceBeforeFirstArg:
+  Enabled: true
+Style/DefWithParentheses:
+  Enabled: true
+# Defining a method with parameters needs parentheses.
+Style/MethodDefParentheses:
+  Enabled: true
+Style/ExplicitBlockArgument:
+  Enabled: true
+Style/MapToHash:
+  Enabled: true
+Style/RedundantFreeze:
+  Enabled: true
+# Use `foo {}` not `foo{}`.
+Layout/SpaceBeforeBlockBraces:
+  Enabled: true
+# Use `foo { bar }` not `foo {bar}`.
+Layout/SpaceInsideBlockBraces:
+  Enabled: true
+  EnforcedStyleForEmptyBraces: space
+# Use `{ a: 1 }` not `{a:1}`.
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: true
+Layout/SpaceInsideParens:
+  Enabled: true
+# Detect hard tabs, no hard tabs.
+Layout/IndentationStyle:
+  Enabled: true
+# Empty lines should not have any spaces.
+Layout/TrailingEmptyLines:
+  Enabled: true
+# No trailing whitespace.
+Layout/TrailingWhitespace:
+  Enabled: true
+# Use quotes for string literals when they are enough.
+Style/RedundantPercentQ:
+  Enabled: true
+Lint/AmbiguousOperator:
+  Enabled: true
+Lint/AmbiguousRegexpLiteral:
+  Enabled: true
+Lint/DuplicateRequire:
+  Enabled: true
+Lint/DuplicateMethods:
+  Enabled: true
+Lint/ErbNewArguments:
+  Enabled: true
+Lint/EnsureReturn:
+  Enabled: true
+Lint/RequireParentheses:
+  Enabled: true
+Lint/RedundantStringCoercion:
+  Enabled: true
+Lint/UriEscapeUnescape:
+  Enabled: true
+Lint/UselessAssignment:
+  Enabled: true
+Lint/DeprecatedClassMethods:
+  Enabled: true
+Style/Documentation:
+  Enabled: false
+Style/ParenthesesAroundCondition:
+  Enabled: true
+Style/HashTransformKeys:
+  Enabled: true
+Style/HashTransformValues:
+  Enabled: true
+Style/RedundantBegin:
+  Enabled: true
+Style/RedundantReturn:
+  Enabled: true
+  AllowMultipleReturnValues: true
+Style/RedundantRegexpEscape:
+  Enabled: true
+Style/RedundantSelf:
+  Enabled: false
+Style/Semicolon:
+  Enabled: true
+  AllowAsExpressionSeparator: true
+Style/ColonMethodCall:
+  Enabled: true
+Style/TrivialAccessors:
+  Enabled: true
