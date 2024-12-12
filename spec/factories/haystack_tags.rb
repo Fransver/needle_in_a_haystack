@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :haystack_tag, class: "HaystackTag" do
+  factory :haystack_tag, class: "NeedleInAHaystack::HaystackTag" do
     sequence(:name) { |n| "Tag #{n}" }
     sequence(:description) { |n| "Description #{n}" }
 

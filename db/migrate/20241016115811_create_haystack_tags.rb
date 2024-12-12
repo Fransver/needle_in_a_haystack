@@ -1,4 +1,4 @@
-class CreateHaystackTags < ActiveRecord::Migration[7.2]
+class CreateHaystackTags < ActiveRecord::Migration[7.1]
   def change
     create_table(:haystack_tags) do |t|
       t.string(:name, null: false)

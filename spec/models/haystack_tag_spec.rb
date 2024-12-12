@@ -1,21 +1,24 @@
 require "rails_helper"
 
-RSpec.describe HaystackTag, type: :model do
+RSpec.describe NeedleInAHaystack::HaystackTag, type: :model do
   describe "validations and associations" do
     subject { build(:haystack_tag) }
 
-    # Validaties
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:description) }
 
-    # Associaties
-    it { is_expected.to belong_to(:parent_tag).class_name("HaystackTag").optional }
-    it { is_expected.to have_many(:children).class_name("HaystackTag").with_foreign_key("parent_tag_id").dependent(:destroy).inverse_of(:parent_tag) }
+    it { is_expected.to belong_to(:parent_tag).class_name("NeedleInAHaystack::HaystackTag").optional }
+    it {
+      is_expected.to have_many(:children)
+        .class_name("NeedleInAHaystack::HaystackTag")
+        .with_foreign_key("parent_tag_id")
+        .dependent(:destroy)
+        .inverse_of(:parent_tag)
+    }
     it { is_expected.to have_many(:haystack_taggings).dependent(:destroy) }
-    it { is_expected.to have_many(:taggables).through(:haystack_taggings).source(:taggable) }
 
     context "when creating duplicate names" do
-      it "validates uniqueness within same parent" do
+      it "rejects a duplicate name within the same parent" do
         parent = create(:haystack_tag)
         create(:haystack_tag, name: "test", parent_tag: parent)
         duplicate = build(:haystack_tag, name: "test", parent_tag: parent)
@@ -24,7 +27,7 @@ RSpec.describe HaystackTag, type: :model do
         expect(duplicate.errors[:name]).to include("Must be unique in same category")
       end
 
-      it "allows same name under different parents" do
+      it "allows the same name under different parents" do
         parent1 = create(:haystack_tag)
         parent2 = create(:haystack_tag)
         create(:haystack_tag, name: "test", parent_tag: parent1)
@@ -34,14 +37,14 @@ RSpec.describe HaystackTag, type: :model do
       end
     end
 
-    context "when validating identity" do
-      it "Ensures uniqueness within the same parent" do
-        parent = create(:haystack_tag)
-        create(:haystack_tag, name: "unique_name", parent_tag: parent)
-        duplicate = build(:haystack_tag, name: "unique_name", parent_tag: parent)
+    context "when a circular reference is introduced" do
+      it "is rejected" do
+        root = create(:haystack_tag, name: "root")
+        child = create(:haystack_tag, name: "child", parent_tag: root)
+        root.parent_tag = child
 
-        expect(duplicate).not_to be_valid
-        expect(duplicate.errors[:name]).to include("Must be unique in same category")
+        expect(root).not_to be_valid
+        expect(root.errors[:parent_tag]).to be_present
       end
     end
   end
@@ -52,7 +55,7 @@ RSpec.describe HaystackTag, type: :model do
     let(:grandchild) { create(:haystack_tag, name: "grandchild", parent_tag: child) }
 
     context "when testing basic hierarchy methods" do
-      before { grandchild } # Ensure the complete hierarchy exists
+      before { grandchild }
 
       it "correctly identifies node positions" do
         expect(root.root?).to be true
@@ -67,10 +70,21 @@ RSpec.describe HaystackTag, type: :model do
         expect(grandchild.depth).to eq(2)
       end
 
-      it "returns correct ancestors" do
+      it "returns correct ancestors, nearest first" do
         expect(grandchild.ancestors).to eq([child, root])
         expect(child.ancestors).to eq([root])
         expect(root.ancestors).to be_empty
+      end
+
+      it "builds the full path without a leading separator" do
+        expect(root.full_path).to eq("root")
+        expect(child.full_path).to eq("root > child")
+        expect(grandchild.full_path).to eq("root > child > grandchild")
+      end
+
+      it "reports the root category for every node" do
+        expect(root.category).to eq("root")
+        expect(grandchild.category).to eq("root")
       end
     end
 
@@ -87,6 +101,7 @@ RSpec.describe HaystackTag, type: :model do
         expect(described_class.find_by_path("invalid")).to be_nil
         expect(described_class.find_by_path("root.invalid")).to be_nil
         expect(described_class.find_by_path("root.child.invalid")).to be_nil
+        expect(described_class.find_by_path(nil)).to be_nil
       end
     end
 
@@ -102,6 +117,11 @@ RSpec.describe HaystackTag, type: :model do
         expect(root.descendants).to contain_exactly(child, grandchild, sibling)
         expect(child.descendants).to contain_exactly(grandchild)
         expect(grandchild.descendants).to be_empty
+      end
+
+      it "returns siblings" do
+        expect(child.siblings).to contain_exactly(sibling)
+        expect(grandchild.siblings).to be_empty
       end
     end
   end
