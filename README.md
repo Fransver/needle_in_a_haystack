@@ -2,6 +2,8 @@
 
 <img src="storage/logo.jpg" alt="Needle in a Haystack logo" width="40%">
 
+[![CI](https://github.com/Fransver/needle_in_a_haystack/actions/workflows/ci.yml/badge.svg)](https://github.com/Fransver/needle_in_a_haystack/actions/workflows/ci.yml)
+
 A Rails engine that implements the [Project Haystack](https://project-haystack.org)
 tagging ontology. It gives you:
 
