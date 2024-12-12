@@ -1,17 +1,20 @@
 # Connection settings for the engine's test/dummy application.
 #
-# The database NAME is gem-specific (needle_in_a_haystack_*) so it never
-# collides with another app's databases. Credentials come from environment
-# variables (loaded from a gitignored .env via dotenv in development/test, or
-# set directly in CI) so no secret lives in version control. See .env.example.
+# The database NAME is gem-specific (needle_in_a_haystack_* by default) so it
+# never collides with another app's databases. Connection details use
+# NIAH_-prefixed environment variables on purpose: generic names like DB_USER
+# are often already exported in a developer's shell for another project, and
+# dotenv does not override an existing variable. The NIAH_ prefix keeps this
+# project isolated. Values are loaded from a gitignored .env (see .env.example)
+# in development/test, or set directly in CI. No secret lives in version control.
 default: &default
   adapter: mysql2
   encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
-  username: <%= ENV.fetch("DB_USER", "root") %>
-  password: <%= ENV["DB_PASSWORD"] %>
-  host: <%= ENV.fetch("DB_HOST", "127.0.0.1") %>
-  <% if ENV["DB_SOCKET"] %>socket: <%= ENV["DB_SOCKET"] %><% end %>
+  username: <%= ENV.fetch("NIAH_DB_USER", "root") %>
+  password: <%= ENV["NIAH_DB_PASSWORD"] %>
+  host: <%= ENV.fetch("NIAH_DB_HOST", "127.0.0.1") %>
+  <% if ENV["NIAH_DB_SOCKET"] %>socket: <%= ENV["NIAH_DB_SOCKET"] %><% end %>
 
 development:
   <<: *default

@@ -30,9 +30,9 @@ jobs:
 
     env:
       RAILS_ENV: test
-      DB_HOST: 127.0.0.1
-      DB_USER: root
-      DB_PASSWORD: ""
+      NIAH_DB_HOST: 127.0.0.1
+      NIAH_DB_USER: root
+      NIAH_DB_PASSWORD: ""
 
     steps:
       - uses: actions/checkout@v4
