@@ -5,10 +5,10 @@ Gem::Specification.new do |spec|
   spec.version = VERSION
   spec.authors = ["Frans Verberne"]
   spec.email = ["frans.verberne@fouriq.nl"]
-  spec.homepage = "https://www.fouriq.nl"
-  spec.summary = "Models and dependencies shared across our projects."
-  spec.description = "haystack ontology implementation for FourIQ projects."
-  spec.license = "Nonstandard"
+  spec.homepage = "https://github.com/Fransver/needle_in_a_haystack"
+  spec.summary = "haystack ontology implementation for FourIQ projects."
+  spec.description = "A Ruby gem for implementing the Haystack ontology, providing a structured way to manage and interact with building and equipment data."
+  spec.license = "MIT"
   spec.required_ruby_version = ">= 3.3.0"
 
   spec.metadata["allowed_push_host"]
