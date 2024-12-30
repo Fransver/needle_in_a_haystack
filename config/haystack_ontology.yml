@@ -4,9 +4,44 @@ site:
     building:
       description: A structure on a site
       children:
+        size:
+          description: Size of a building
+          children:
+            small:
+              description: Small building that is smaller than 800 m2
+            medium:
+              description: Medium building that is between 800 m2 and 2000 m2
+            large:
+              description: Large building that is larger than 2000 m2
+        type:
+          description: Type of a building
+          children:
+            office:
+              description: Office building
+            school:
+              description: School building
+            care_home:
+              description: Care building
+            accompanying_living:
+              description: Accompanying living building
+            mixed_use:
+              description: Mixed-use building
         floor:
           description: A floor in a building
           children:
+            levels:
+              description: Number of levels in a building
+              children:
+                ground:
+                  description: Ground floor
+                basement:
+                  description: Basement floor
+                mezzanine:
+                  description: Mezzanine floor
+                upper:
+                  description: Upper floor
+                roof:
+                  description: Roof floor
             area:
               description: A three-dimensional space in the built environment
               children:
@@ -34,6 +69,16 @@ site:
                   description: A room for mechanical equipment and installations
                 electricalRoom:
                   description: A room for electrical equipment and installations
+                serverRoom:
+                  description: Room containing server and network equipment
+                cafeteria:
+                  description: Dining area within a building
+                gymnasium:
+                  description: Exercise or sports facility area
+                laboratory:
+                  description: Laboratory space
+                auditorium:
+                  description: Large presentation space
 
 equip:
   description: Equipment asset
@@ -52,6 +97,8 @@ equip:
               description: Electricity meter management
             fudura:
               description: Fudura electricity meter
+            submeter:
+              description: Secondary electricity meter for specific circuit or area
         gasMeter:
           description: Gas meter
           children:
@@ -65,6 +112,13 @@ equip:
               description: Fudura gas meter
         waterMeter:
           description: Water meter
+          children:
+            hotWater:
+              description: Hot water consumption meter
+            coldWater:
+              description: Cold water consumption meter
+            greyWater:
+              description: Grey water recycling meter
         climateMeter:
           description: Climate meter
           children:
@@ -76,32 +130,76 @@ equip:
               description: Humidity meter
             loraMeter:
               description: LoRa climate meter for temperature, humidity, and CO2
-
     weatherStation:
       description: Weather station for meteorological data
       children:
         onlineWeather:
           description: Online weather station via API or website
+        solarRadiation:
+          description: Solar radiation measurement equipment
+        windSpeed:
+          description: Wind speed and direction measurement
+        precipitation:
+          description: Rainfall measurement equipment
     hvac:
       description: Heating, ventilation, and air conditioning
       children:
         ahu:
           description: Air Handling Unit
+          children:
+            economizer:
+              description: System for using outside air for cooling
+            heatExchanger:
+              description: Heat recovery system
+            humidifier:
+              description: Air humidification system
         vav:
           description: Variable Air Volume box
         fcu:
           description: Fan Coil Unit
         chiller:
           description: Chiller
+          children:
+            airCooled:
+              description: Air-cooled chiller
+            waterCooled:
+              description: Water-cooled chiller
         boiler:
           description: Boiler
+          children:
+            condensing:
+              description: Condensing boiler
+            steamBoiler:
+              description: Steam generation boiler
         heatPump:
           description: Heat pump
+          children:
+            airSource:
+              description: Air-source heat pump
+            groundSource:
+              description: Ground-source heat pump
+        coolingTower:
+          description: Cooling tower for heat rejection
+        pump:
+          description: Circulation pump
+          children:
+            variableSpeed:
+              description: Variable speed pump
+            constantSpeed:
+              description: Constant speed pump
+
     lighting:
       description: Lighting systems
       children:
         luminaire:
           description: Luminaire
+          children:
+            led:
+              description: LED lighting fixture
+            fluorescent:
+              description: Fluorescent lighting fixture
+            emergency:
+              description: Emergency lighting
         lightSensor:
           description: Light sensor
         occupancySensor:
@@ -127,36 +225,33 @@ point:
               description: Indoor temperature sensor
             tempOutdoor:
               description: Outdoor temperature sensor
+            returnAir:
+              description: Return air temperature sensor
+            supplyAir:
+              description: Supply air temperature sensor
         co2:
           description: CO2 sensor
         humidity:
           description: Humidity sensor
-        pressure:
-          description: Pressure sensor
-        flow:
-          description: Flow sensor
-        power:
-          description: Power sensor
         energy:
           description: Energy sensor
+          children:
+            elecEnergy:
+              description: Electricity energy sensor
+              children:
+                demand:
+                  description: Power demand sensor
+                reactive:
+                  description: Reactive power sensor
+            gasEnergy:
+              description: Gas energy sensor
+              children:
+                gasFlow:
+                  description: Gas flow sensor
+            waterEnergy:
+              description: Water energy sensor
         occupancy:
           description: Occupancy sensor
-    cmd:
-      description: Command point
-      children:
-        onOff:
-          description: On/off command
-        setpoint:
-          description: Setpoint
-    sp:
-      description: Setpoint
-      children:
-        tempSp:
-          description: Temperature setpoint
-        humiditySp:
-          description: Humidity setpoint
-        pressureSp:
-          description: Pressure setpoint
     status:
       description: Status point
       children:
@@ -202,6 +297,10 @@ measurement:
       description: Current
     frequency:
       description: Frequency
+    power_factor:
+      description: Power factor
+    quality:
+      description: Power quality
     luminosity:
       description: Luminosity
 
@@ -211,25 +310,6 @@ schedule:
   description: Schedule
 timezone:
   description: Time zone
-
-network:
-  description: Network-related information
-  children:
-    protocol:
-      description: Communication protocol
-      children:
-        bacnet:
-          description: BACnet protocol
-        modbus:
-          description: Modbus protocol
-        knx:
-          description: KNX protocol
-        lonworks:
-          description: LonWorks protocol
-    ipAddr:
-      description: IP address
-    mac:
-      description: MAC address
 
 id:
   description: Unique identifier
