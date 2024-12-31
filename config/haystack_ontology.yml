@@ -93,7 +93,7 @@ equip:
               description: Smart electricity meter
             intervalMeter:
               description: Interval electricity meter
-            meterbeheer:
+            meterbeheerElec:
               description: Electricity meter management
             fudura:
               description: Fudura electricity meter
@@ -106,7 +106,7 @@ equip:
               description: Smart gas meter
             intervalMeter:
               description: Interval gas meter
-            meterbeheer:
+            meterbeheerGas:
               description: Gas meter management
             fudura:
               description: Fudura gas meter
