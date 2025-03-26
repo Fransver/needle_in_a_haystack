@@ -63,19 +63,16 @@ class HaystackTag < BaseTag
   end
 
   private
+    def prevent_circular_reference
+      return unless parent_tag == self || ancestors.include?(self)
 
-  def prevent_circular_reference
-    return unless parent_tag == self || ancestors.include?(self)
+      errors.add(:parent_tag, I18n.t(:validate_circular_reference))
+    end
 
-    errors.add(:parent_tag, I18n.t(:validate_circular_reference))
-  end
+    def ensure_identity
+      return unless (root? && name != category) || HaystackTag.exists?(name: name, parent_tag_id: parent_tag_id)
 
-  def ensure_identity
-    return if root? && name == category
-
-    return unless HaystackTag.where(name: name).any? { |tag| tag.category == category }
-
-    Rails.logger.error("Duplicate tag found: #{name} within category: #{category}")
-    errors.add(:name, I18n.t(:validate_uniqueness))
-  end
+      Rails.logger.error("Duplicate tag found: #{name} within parent tag ID: #{parent_tag_id}")
+      errors.add(:name, I18n.t(:validate_uniqueness))
+    end
 end
