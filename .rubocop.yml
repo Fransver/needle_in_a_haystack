@@ -163,3 +163,5 @@ Style/ColonMethodCall:
   Enabled: true
 Style/TrivialAccessors:
   Enabled: true
+Style/FrozenStringLiteralComment:
+  Enabled: false

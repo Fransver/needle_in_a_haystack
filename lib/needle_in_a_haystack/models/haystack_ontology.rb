@@ -9,10 +9,6 @@ class HaystackOntology < ApplicationRecord
     path.include?(".") ? find_tag_in_hierarchy(tags, path.split(".")) : find_tag_in_hierarchy(tags, [path])
   end
 
-  # This method recursively searches for a tag in a nested hash structure.
-  # - `current_hash`: The current level of the hash being searched.
-  # - `keys`: An array of keys representing the path to the desired tag.
-  # - `path`: An array to keep track of the current path (used for constructing the full path of the tag).
   def self.find_tag_in_hierarchy(current_hash, keys, path = [])
     return nil unless current_hash.is_a?(Hash) && keys.any?
 

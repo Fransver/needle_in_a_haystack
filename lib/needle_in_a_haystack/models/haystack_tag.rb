@@ -1,8 +1,5 @@
 require "yaml"
 class HaystackTag < BaseTag
-  # PATH_ONTOLOGY = "/Users/frans/Documents/fouriq/fouriq_haystack/config/haystack_ontology.yml"
-  PATH_ONTOLOGY = "/Users/frans/Documents/fouriq/fouriq_haystack/config/haystack_ontology.yml"
-
   belongs_to :parent_tag, class_name: "HaystackTag", optional: true
   has_many :children, class_name: "HaystackTag", foreign_key: "parent_tag_id", dependent: :destroy, inverse_of: :parent_tag
   has_many :haystack_taggings, dependent: :destroy

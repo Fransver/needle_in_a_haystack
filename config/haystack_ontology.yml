@@ -277,7 +277,7 @@ substance:
 measurement:
   description: Measurable properties
   children:
-    temp:
+    tempMeasurement:
       description: Temperature
     humidity:
       description: Humidity
